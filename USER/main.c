@@ -6,6 +6,10 @@
 #include "timer.h"
 #include "exti.h"
 #include "sequence.h"
+
+#define PWM_PERIOD 10  //实际周期为PWM_PERIOD
+#define PWM1_LOW_TIME 2 
+#define PWM2_LOW_TIME 6
 /*
   高级定时器1 选择通道1/2/3  PA8/9/10
 						  对应的互补通道为 PB13 PB14 PB15
@@ -45,7 +49,7 @@ int main(void)
 	//pten = TenOrder_Sequence(array_ten,pten);
 	//ptwelve = TwelveOrder_Sequence(array_twelve,ptwelve);
 	//pthirteen = ThirteenOrder_Sequence(array_thirteen,pthirteen);
-		uart_init(115200);	 //串口初始化为115200	
+		uart_init(115200);	 //串口初始化为115200	https://www.codeleading.com/article/37512487974/
 		//pfour = FourOrder_Sequence(array_four,pfour);
 		for(i = 0;i < 15;i++){
 		    printf("%d ",array[i]);
@@ -68,13 +72,38 @@ int main(void)
 void TIM2_IRQHandler(void) //TIM2 中断
 {
 		if(array[count]==1){
-			TIM1->CCR1 = 30;
-			TIM8->CCR1 = 60;
+			TIM1->CCR1 = PWM1_LOW_TIME;
+			TIM8->CCR1 = PWM2_LOW_TIME;
 		}
 		else{
-			TIM1->CCR1 = 100;
-			TIM8->CCR1 = 100;
+			TIM1->CCR1 = PWM_PERIOD;
+			TIM8->CCR1 = PWM_PERIOD;
 		}
 		count++; 
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update); //清除 TIM2 更新中断标志
+}
+//外部中断0服务程序 中断线以及中断初始化配置 上升沿触发 PA0  WK_UP
+//LED.c中的GPIOA.0先要拉低
+void EXTI0_IRQHandler(void)
+{
+  
+  TIM1_ALL_Init(PWM_PERIOD-1,71,PWM1_LOW_TIME);
+	
+	TIM8_ALL_Init(PWM_PERIOD-1,71,PWM2_LOW_TIME);
+	
+  TIM2_Int_Init(PWM_PERIOD-1,71);
+	TIM_Cmd(TIM1, ENABLE);
+	EXTI_ClearITPendingBit(EXTI_Line0); //清除LINE0上的中断标志位 
+		
+}
+ 
+//外部中断4服务程序
+void EXTI4_IRQHandler(void)
+{
+	delay_ms(10);//消抖
+	if(KEY0==1)	 //按键KEY0
+	{
+		LED0=!LED0;
+	}		 
+	EXTI_ClearITPendingBit(EXTI_Line4);  //清除LINE4上的中断标志位  
 }

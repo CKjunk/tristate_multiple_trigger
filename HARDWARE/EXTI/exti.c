@@ -45,26 +45,3 @@ void EXTIX_Init(void)
 	 
 }
 
-//外部中断0服务程序 中断线以及中断初始化配置 上升沿触发 PA0  WK_UP
-//LED.c中的GPIOA.0先要拉低
-void EXTI0_IRQHandler(void)
-{
-  
-  TIM1_ALL_Init(99,71);
-	TIM8_ALL_Init(99,71);
-  TIM2_Int_Init(99,71);
-	TIM_Cmd(TIM1, ENABLE);
-	EXTI_ClearITPendingBit(EXTI_Line0); //清除LINE0上的中断标志位 
-		
-}
- 
-//外部中断4服务程序
-void EXTI4_IRQHandler(void)
-{
-	delay_ms(10);//消抖
-	if(KEY0==1)	 //按键KEY0
-	{
-		LED0=!LED0;
-	}		 
-	EXTI_ClearITPendingBit(EXTI_Line4);  //清除LINE4上的中断标志位  
-}

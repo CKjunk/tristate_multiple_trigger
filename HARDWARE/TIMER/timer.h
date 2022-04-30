@@ -17,7 +17,7 @@
  
 void TIM2_Int_Init(u16 arr,u16 psc);
 //void TIM3_PWM_Init(u16 arr,u16 psc);
-void TIM1_ALL_Init(u16 arr,u16 psc);
-void TIM8_ALL_Init(u16 arr,u16 psc);
+void TIM1_ALL_Init(u16 arr,u16 psc,u16 lowTime);
+void TIM8_ALL_Init(u16 arr,u16 psc,u16 lowTime);
  
 #endif

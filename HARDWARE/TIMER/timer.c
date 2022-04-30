@@ -2,13 +2,13 @@
 #include "led.h"
 #include "usart.h"
 
-void TIM1_ALL_Init(u16 arr,u16 psc)
+void TIM1_ALL_Init(u16 arr,u16 psc,u16 lowTime)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB , ENABLE);  //使能GPIO外设时钟 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO , ENABLE);  //使能GPIO外设时钟 
 //1001101011
 	//TIM1复用功能重映像
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10; //TIM1_CH1 2 3
@@ -50,7 +50,7 @@ void TIM1_ALL_Init(u16 arr,u16 psc)
  
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
 	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
-	TIM_OCInitStructure.TIM_Pulse = 60;  // 移相度数 = 180*CCR/（ARR+1）
+	TIM_OCInitStructure.TIM_Pulse = lowTime;  // 移相度数 = 180*CCR/（ARR+1）
 	
 	TIM_OC3Init(TIM1, &TIM_OCInitStructure);
 	TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);
@@ -67,7 +67,7 @@ void TIM1_ALL_Init(u16 arr,u16 psc)
 	TIM_CtrlPWMOutputs(TIM1, ENABLE);///////主输出使能
 
 }
-void TIM8_ALL_Init(u16 arr,u16 psc)
+void TIM8_ALL_Init(u16 arr,u16 psc,u16 lowTime)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -82,7 +82,7 @@ void TIM8_ALL_Init(u16 arr,u16 psc)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);//初始化GPIOC
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7; //TIM8_CH1N
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7|GPIO_Pin_8; //TIM8_CH1N
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //复用推挽输出
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA
@@ -109,7 +109,7 @@ void TIM8_ALL_Init(u16 arr,u16 psc)
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;//输出使能
 	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable; //使能  互补 输出状态
 
-	TIM_OCInitStructure.TIM_Pulse = 80;//设置比较值（跳变值）        
+	TIM_OCInitStructure.TIM_Pulse =  lowTime;//设置比较值（跳变值）        
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;//有效电平为高电平  没翻转前为低电平        
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
 	TIM_OC1Init(TIM8, &TIM_OCInitStructure);//初始化输出比较寄存器
